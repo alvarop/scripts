@@ -94,7 +94,7 @@ while scanning:
     if args.debug:
         print("Temp file", label_filename)
 
-    label = InventoryLabel()
+    label = InventoryLabel(font_name="Andale Mono.ttf")
     label.create_label(
         fields["Supplier Part Number"],
         digikey_data["Description"],
@@ -110,7 +110,9 @@ while scanning:
                 "-d",
                 "Brother_QL_570",
                 "-o",
-                "media=Custom.62x29mm",
+                "media=Custom.62x23mm",
+                "-o",
+                "fit-to-page",
                 "-o",
                 "orientation-requested=3",
                 label_filename,
