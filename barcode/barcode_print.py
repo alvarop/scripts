@@ -5,7 +5,7 @@ import tempfile
 import time
 import os
 from pprint import pprint
-from dkbc.dkbc import dk_process_barcode
+from dkbc.dkbc import DKBC
 from inventory_label.inventory_label import InventoryLabel
 
 iso_iec_15434_start = re.compile("^>?\[\)>(\{RS\})?[>]?[0-9]{2}{GS}")
@@ -27,6 +27,8 @@ parser.add_argument("--batch", action="store_true", help="Batch scan")
 parser.add_argument("--print", action="store_true", help="Print label")
 parser.add_argument("--debug", action="store_true", help="Debug mode")
 args = parser.parse_args()
+
+dkbc = DKBC()
 
 
 def decode_barcode(barcode):
@@ -69,11 +71,11 @@ while scanning:
         barcode = barcode.replace("{RS}", "\u241e")
         barcode = barcode.replace("{GS}", "\u241d")
         barcode = barcode.replace("{EOT}", "\x04")
-        digikey_data = dk_process_barcode(barcode)
+        digikey_data = dkbc.process_barcode(barcode)
     except ValueError:
         fields = None
         simple_code = None
-        digikey_data = dk_process_barcode(barcode)
+        digikey_data = dkbc.process_barcode(barcode)
 
     if args.debug:
         if fields:
@@ -88,8 +90,6 @@ while scanning:
 
     # Add GS delimiters and EOT at the end
     reduced_barcode = "\u001d".join(new_code) + "\u0004"
-
-
 
     if "ProductDescription" in digikey_data:
         description = digikey_data["ProductDescription"]
