@@ -68,8 +68,8 @@ while scanning:
         fields = decode_barcode(barcode)
 
         # TODO - use other digikey api when scanning non-dk barcodes
-        barcode = barcode.replace("{RS}", "\u241e")
-        barcode = barcode.replace("{GS}", "\u241d")
+        barcode = barcode.replace("{RS}", "\x1e")
+        barcode = barcode.replace("{GS}", "\x1d")
         barcode = barcode.replace("{EOT}", "\x04")
         digikey_data = dkbc.process_barcode(barcode)
     except ValueError:
@@ -89,7 +89,7 @@ while scanning:
     ]
 
     # Add GS delimiters and EOT at the end
-    reduced_barcode = "\u001d".join(new_code) + "\u0004"
+    reduced_barcode = "\x1d".join(new_code) + "\x04"
 
     if "ProductDescription" in digikey_data:
         description = digikey_data["ProductDescription"]
