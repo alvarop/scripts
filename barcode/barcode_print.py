@@ -54,6 +54,34 @@ def decode_barcode(barcode):
     return fields
 
 
+def dk_search_for_part(part_no):
+    digikey_data = dkbc.get_part_details(part_no)
+    index = -1
+
+    # Only prompt user if there's more than one item
+    if digikey_data["ProductsCount"] > 1:
+        print(
+            "{:3s} | {:30s} | {:6s} | {:20s}".format(
+                "ID", "Digi-key Part Number", "MOQ", "Packaging",
+            )
+        )
+
+        for idx, product in enumerate(digikey_data["Products"]):
+            print(
+                "{:3d} | {:30s} | {:6d} | {:20s}".format(
+                    idx,
+                    product["DigiKeyPartNumber"],
+                    product["MinimumOrderQuantity"],
+                    product["Packaging"]["Value"],
+                )
+            )
+        while index < 0 or index >= digikey_data['ProductsCount']:
+            index = int(input("Select part number to use: "))
+    else:
+        index = 0
+
+    return digikey_data["Products"][index]
+
 scanning = True
 
 while scanning:
@@ -77,10 +105,16 @@ while scanning:
         simple_code = None
         digikey_data = dkbc.process_barcode(barcode)
 
+    if "ErrorMessage" in digikey_data:
+        print(digikey_data["ErrorMessage"])
+        print(f"Trying to search for {fields['Supplier Part Number']} instead")
+        digikey_data = dk_search_for_part(fields["Supplier Part Number"])
+
     if args.debug:
         if fields:
             pprint(fields)
         pprint(digikey_data)
+
 
     new_code = [
         "[)>\u001e06",
